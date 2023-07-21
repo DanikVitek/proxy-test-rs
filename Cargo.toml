@@ -1,6 +1,6 @@
 [package]
 name = "proxy_test"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Danik_Vitek < discord:danik_vitek >"]
 description = "A simple proxy tester"
