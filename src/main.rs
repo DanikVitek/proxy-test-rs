@@ -12,7 +12,7 @@ use tokio::{
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
 struct Arguments {
-    /// Path to the file containing the proxies
+    /// Path to the file containing proxies
     #[arg(short, long)]
     input: PathBuf,
     #[command(flatten)]
