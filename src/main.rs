@@ -1,4 +1,4 @@
-use std::{fmt, path::PathBuf, str::FromStr};
+use std::{fmt, path::PathBuf, str::FromStr, time::Duration};
 
 use clap::{Args, Parser};
 use color_eyre::owo_colors::OwoColorize;
@@ -20,6 +20,9 @@ struct Arguments {
     /// Address to send the request to
     #[arg(short, long, default_value = "http://www.google.com")]
     ping_addr: Url,
+    /// Timeout for the request in seconds
+    #[arg(short, long, default_value = "10")]
+    timeout: u64,
     /// Print more information
     #[arg(short, long)]
     verbose: bool,
@@ -49,9 +52,11 @@ async fn main() -> color_eyre::eyre::Result<()> {
             output_file,
             stdout,
         },
+        timeout,
         ping_addr,
         verbose,
     } = args;
+    let timeout = Duration::from_secs(timeout);
     let input_file = fs::read_to_string(input).await?;
 
     let proxies = input_file
@@ -77,6 +82,7 @@ async fn main() -> color_eyre::eyre::Result<()> {
         .filter_map(|(proxy_addr, proxy)| {
             Client::builder()
                 .proxy(proxy)
+                .timeout(timeout)
                 .build()
                 .map_err(|err| println!("{}", format!("Error building client: {err}").red()))
                 .ok()
