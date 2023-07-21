@@ -1,0 +1,25 @@
+[package]
+name = "proxy_test"
+version = "0.1.0"
+edition = "2021"
+authors = ["Danik_Vitek < discord:danik_vitek >"]
+description = "A simple proxy tester"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[profile.release]
+lto = true
+opt-level = 3
+strip = true
+
+[dependencies]
+clap = { version = "4.3.17", features = ["derive"] }
+color-eyre = "0.6.2"
+futures = { version = "0.3.28", default-features = false, features = [
+    "std",
+    "async-await",
+] }
+reqwest = { version = "0.11.18", default-features = false, features = [
+    "futures-channel",
+] }
+tokio = { version = "1.29.1", default-features = false, features = ["full"] }
