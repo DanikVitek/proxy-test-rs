@@ -57,9 +57,9 @@ async fn main() -> color_eyre::eyre::Result<()> {
         verbose,
     } = args;
     let timeout = Duration::from_secs(timeout);
-    let input_file = fs::read_to_string(input).await?;
+    let input_file: String = fs::read_to_string(input).await?;
 
-    let proxies = input_file
+    let proxies: Vec<Url> = input_file
         .lines()
         .map(|line| line.trim())
         .filter(|line| !line.is_empty())
@@ -73,11 +73,11 @@ async fn main() -> color_eyre::eyre::Result<()> {
 
     let requests = proxies
         .into_iter()
-        .filter_map(|proxy_addr| {
+        .filter_map(|proxy_addr: Url| {
             Proxy::http(proxy_addr.clone())
                 .map_err(|err| println!("{}", format!("Error creating proxy: {err}").red()))
                 .ok()
-                .map(|proxy| (proxy_addr, proxy))
+                .map(|proxy: Proxy| (proxy_addr, proxy))
         })
         .filter_map(|(proxy_addr, proxy)| {
             Client::builder()
@@ -86,17 +86,16 @@ async fn main() -> color_eyre::eyre::Result<()> {
                 .build()
                 .map_err(|err| println!("{}", format!("Error building client: {err}").red()))
                 .ok()
-                .map(|client| (proxy_addr, client))
+                .map(|client: Client| (proxy_addr, client))
         })
         .map({
-            move |(proxy_addr, client)| {
+            |(proxy_addr, client)| {
                 let ping_addr = ping_addr.clone();
                 async move { client.get(ping_addr).send().await.map(|_| proxy_addr) }
             }
-        })
-        .collect::<Vec<_>>();
+        });
 
-    let mut file = match output_file {
+    let mut output_file: Option<File> = match output_file {
         Some(path) => Some(File::create(path).await?),
         None => None,
     };
@@ -110,7 +109,7 @@ async fn main() -> color_eyre::eyre::Result<()> {
                         println!("{}", proxy_addr.green());
                     }
                 }
-                if let Some(file) = &mut file {
+                if let Some(file) = &mut output_file {
                     file.write_all(format!("{}\n", proxy_addr).as_bytes())
                         .await?;
                 }
