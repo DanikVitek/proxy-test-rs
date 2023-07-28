@@ -64,10 +64,7 @@ async fn main() -> color_eyre::eyre::Result<()> {
         .map(|line| line.trim())
         .filter(|line| !line.is_empty())
         .map(Url::from_str)
-        .try_fold(Vec::new(), |mut acc, proxy| {
-            acc.push(proxy?);
-            Result::<Vec<Url>, <Url as FromStr>::Err>::Ok(acc)
-        })?;
+        .collect::<Result<Vec<Url>, _>>()?;
 
     eprintln!("Proxies: {}", DisplaySlice(&proxies));
 
